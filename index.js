@@ -143,4 +143,53 @@ async function run() {
       res.send(orders);
     });
 
+  // orders....
+  app.get("/orders", async (req, res) => {
+    const email = req.query.email;
+    const query = { email: email };
+    const order = await orderCollection.find(query).toArray();
+    res.send(order);
+  });
+
+  app.post("/orders", async (req, res) => {
+    const order = req.body;
+    const query = {
+      order_id: order.order_id,
+      email: order.email,
+    };
+
+    const alreadyordered = await orderCollection.find(query).toArray();
+    if (alreadyordered.length) {
+      const message = `You have a order for ${order.BikeName} already `;
+      return res.send({ acknowledged: false, message });
+    }
+    const result = await orderCollection.insertOne(order);
+    res.send(result);
+  });
+  // Ad
+
+  app.post("/ad", async (req, res) => {
+    const mobiles = req.body;
+    const id = mobiles._id;
+    const query = {
+      _id: ObjectId(id),
+      email: mobiles.email,
+    };
+    const filter = { _id: ObjectId(id) };
+    const updatedDoc = {
+      $set: {
+        advertiesed: true,
+      },
+    };
+    const updateFilter = await adCollection.updateOne(filter, updatedDoc);
+    const result = await adCollection.insertOne(mobiles);
+    res.send(result);
+  });
+
+  app.get("/ad", async (req, res) => {
+    const query = {};
+    const mobile = await adCollection.find(query).toArray();
+    res.send(mobile);
+  });
+
   
