@@ -192,4 +192,18 @@ async function run() {
     res.send(mobile);
   });
 
+  // JWT...
+  app.get("/jwt", async (req, res) => {
+    const email = req.query.email;
+    const query = { email: email };
+    const user = await usersCollection.findOne(query);
+    if (user && user?.email) {
+      const token = jwt.sign({ email }, process.env.DB_AccessToken, {
+        expiresIn: "23h",
+      });
+      return res.send({ accessToken: token });
+    }
+    res.status(403).send({ accessToken: "Restricted Access" });
+  });
+
   
