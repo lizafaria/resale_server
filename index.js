@@ -225,4 +225,27 @@ async function run() {
     const user = await usersCollection.findOne(query);
     res.send({ isSeller: user?.role === "seller" });
   });
-  
+  app.get("/users", async (req, res) => {
+    const query = {};
+    const users = await usersCollection.find(query).toArray();
+    res.send(users);
+  });
+  app.delete("/users/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const result = await usersCollection.deleteOne(query);
+    res.send(result);
+  });
+} finally {
+}
+}
+
+run().catch((err) => console.error(err));
+
+app.get("/", (req, res) => {
+res.send("Server is running");
+});
+
+app.listen(port, () => {
+console.log(`Server is running on ${port}`);
+});
