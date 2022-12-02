@@ -73,4 +73,74 @@ async function run() {
       res.send(cursor);
     });
 
-  }}
+    app.get("/bikescategory", async (req, res) => {
+      const email = req.query.email;
+      const queryByEmailForSeller = { email: email };
+      const cursor = await bikeCollection.find(query).toArray();
+      res.send(cursor);
+    });
+
+    app.post("/bikes", async (req, res) => {
+      const bikes = req.body;
+      const result = await bikeCollection.insertOne(bikes);
+      res.send(result);
+    });
+
+    app.post("/wishlist", async (req, res) => {
+      const bikes = req.body;
+      const id = bikes._id;
+
+      const query = {
+        _id: new ObjectId(id),
+        email: bikes.email,
+      };
+      const available = await wishCollection.find(query).toArray();
+      if (available.length) {
+        const message = `You have already added to wishlist this item`;
+        return res.send({ acknowledged: false, message });
+      }
+      const result = await wishCollection.insertOne(bikes);
+      res.send(result);
+    });
+
+    app.get("/wishlist", async (req, res) => {
+      const email = req.query.email;
+
+      const query = { email: email };
+      console.log(email);
+      const orders = await wishCollection.find(query).toArray();
+      res.send(orders);
+    });
+
+    app.post("/reports", async (req, res) => {
+      const phones = req.body;
+      const id = phones._id;
+
+      const query = {
+        _id: new ObjectId(id),
+        email: phones.email,
+      };
+      const available = await reportCollection.find(query).toArray();
+      if (available.length) {
+        const message = `You have reported this Item Already`;
+        return res.send({ acknowledged: false, message });
+      }
+      const result = await reportCollection.insertOne(phones);
+      res.send(result);
+    });
+
+    app.delete("/reports/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reportCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.get("/reports", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const orders = await reportCollection.find(query).toArray();
+      res.send(orders);
+    });
+
+  
