@@ -48,4 +48,29 @@ async function run() {
     const sellersCollection = client.db("Bike-Mart").collection("sellers");
     const paymentsCollection = client.db("Bike-Mart").collection("payments");
 
+    app.get("/bikes", async (req, res) => {
+      const id = req.params.id;
+      const query = {};
+      const cursor = await categoryCollection.find(query).toArray();
+      const orderQuery = { orderId: id };
+      const email = req.query.email;
+      const queryEmailSeller = { email: email };
+      const orders = await orderCollection.find(queryEmailSeller).toArray();
+      const alreadyBooked = await orderCollection.find(orderQuery).toArray();
+      cursor.forEach((cur) => {
+        const curBooked = alreadyBooked.filter(
+          (book) => book.orderId === cur.orderId
+        );
+        console.log(curBooked);
+      });
+
+      res.send(cursor);
+    });
+    app.get("/bikes/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = { category_id: id };
+      const cursor = await categoryCollection.find(result).toArray();
+      res.send(cursor);
+    });
+
   }}
